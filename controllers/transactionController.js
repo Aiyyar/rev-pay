@@ -3,7 +3,13 @@ const Account = require('../models/account');
 
 exports.createTransaction = async (req, res) => {
     const { accountId, type, amount } = req.body;
-    const businessId = req.business.id;
+    // const businessId = req.business.id;
+    if (!req.business) {
+        res.status(404).send('Business id is not Found');
+        }
+        else{
+            const businessId = req.business.id;
+        }
 
     try {
         let account = await Account.findOne({ accountId, businessId });
@@ -52,6 +58,51 @@ exports.createTransaction = async (req, res) => {
         await transaction.save();
 
         res.json(transaction);
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+};
+
+
+
+exports.getTransaction = async (req, res) => {
+    const { accountId, type, startDate, endDate } = req.query;
+    if (!req.business) {
+        res.status(404).send('Business id is not Found');
+        }
+        else{
+            const businessId = req.business.id;
+        }
+    try {
+        const account = await Account.findOne({ _id: accountId, businessId });
+
+        if (!account) {
+            return res.status(404).json({ msg: 'Account not found' });
+        }
+
+        // Build the query object
+        let query = { accountId: account._id };
+
+        if (type) {
+            query.type = type;
+        }
+
+        if (startDate || endDate) {
+            query.date = {};
+            if (startDate) {
+                query.date.$gte = new Date(startDate);
+            }
+            if (endDate) {
+                query.date.$lte = new Date(endDate);
+            }
+        }
+
+        // Find transactions matching the query
+        const transactions = await Transaction.find(query).sort({ date: -1 });
+
+        res.json(transactions);
 
     } catch (err) {
         console.error(err.message);

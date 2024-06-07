@@ -4,7 +4,7 @@ const auth = require('../middlewares/auth');
 
 const router = express.Router();
 
-router.post('/', auth, createAccount);
+router.post('/',auth, createAccount);
 router.put('/:accountId', auth, updateAccount);
 router.get('/:accountId/balance', auth, getAccountBalance);
 

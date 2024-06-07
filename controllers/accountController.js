@@ -1,9 +1,13 @@
 const Account = require('../models/account');
 
 exports.createAccount = async (req, res) => {
+    // res.status(200).send('hiii');
     const { bankAccountNumber, sortCode } = req.body;
-    const businessId = req.business.id;
-        
+    if (!req.business) {
+        res.status(404).send('Business id is not Found'); 
+           }
+    else{    
+    const businessId = req.business.id;}
     try {
         const account = new Account({
             businessId,
@@ -12,7 +16,7 @@ exports.createAccount = async (req, res) => {
             sortCode
         });
 
-     tthis.account= await account.save();
+     this.account= await account.save();
     
         res.json(account);
 
